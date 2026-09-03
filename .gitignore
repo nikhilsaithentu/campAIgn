@@ -32,3 +32,10 @@ dist-ssr
 # Test coverage
 coverage/
 **/coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# ChromaDB runtime data
+**/chroma_db/
