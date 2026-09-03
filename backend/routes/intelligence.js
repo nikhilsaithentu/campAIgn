@@ -1,39 +1,115 @@
-const express = require('express')
-const router = express.Router()
-const Groq = require('groq-sdk')
+const express = require("express");
+const router = express.Router();
+const Groq = require("groq-sdk");
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
+// ============================================================
 // Helper — calculate days between two dates
+// ============================================================
+
 const daysBetween = (date1, date2) => {
-  const d1 = new Date(date1)
-  const d2 = new Date(date2)
-  return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24))
-}
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
 
-// Helper — build campaign context metadata (no PII)
-const buildCampaignContext = (campaign, campaignAnalytics, channelMeta, segmentMeta) => {
-  const today = new Date()
-  const totalDays = daysBetween(campaign.startDate, campaign.endDate)
-  const daysElapsed = daysBetween(campaign.startDate, today)
-  const daysRemaining = daysBetween(today, campaign.endDate)
-  const timePercent = Math.min(((daysElapsed / totalDays) * 100), 100).toFixed(1)
+  return Math.ceil(
+    (d2 - d1) / (1000 * 60 * 60 * 24)
+  );
+};
 
-  const budgetUtilisation = campaignAnalytics?.budgetUtilisation ||
-    ((campaign.spentSoFar / campaign.budget) * 100).toFixed(2)
+// ============================================================
+// Helper — build campaign context
+// ============================================================
 
-  const reachEfficiency = campaignAnalytics?.reachEfficiency ||
-    ((campaign.actualReach / campaign.targetReach) * 100).toFixed(2)
+const buildCampaignContext = (
+  campaign,
+  campaignAnalytics,
+  channelMeta,
+  segmentMeta
+) => {
+  const today = new Date();
 
-  const budgetRemaining = campaign.budget - campaign.spentSoFar
+  const totalDays = Math.max(
+    daysBetween(
+      campaign.startDate,
+      campaign.endDate
+    ),
+    1
+  );
 
-  // Projected reach at current pace
-  const dailyReachRate = campaign.actualReach / Math.max(daysElapsed, 1)
-  const projectedReach = Math.round(campaign.actualReach + (dailyReachRate * daysRemaining))
+  const daysElapsed = Math.max(
+    daysBetween(
+      campaign.startDate,
+      today
+    ),
+    0
+  );
+
+  const daysRemaining = Math.max(
+    daysBetween(
+      today,
+      campaign.endDate
+    ),
+    0
+  );
+
+  const timePercent = Math.min(
+    (daysElapsed / totalDays) * 100,
+    100
+  ).toFixed(1);
+
+  const budget =
+    Number(campaign.budget) || 0;
+
+  const spent =
+    Number(campaign.spentSoFar) || 0;
+
+  const actualReach =
+    Number(campaign.actualReach) || 0;
+
+  const targetReach =
+    Number(campaign.targetReach) || 0;
+
+  const budgetUtilisation =
+    campaignAnalytics?.budgetUtilisation ??
+    (budget > 0
+      ? (spent / budget) * 100
+      : 0);
+
+  const reachEfficiency =
+    campaignAnalytics?.reachEfficiency ??
+    (targetReach > 0
+      ? (actualReach / targetReach) * 100
+      : 0);
+
+  const budgetRemaining =
+    Math.max(budget - spent, 0);
+
+  // Projected reach
+  const dailyReachRate =
+    actualReach /
+    Math.max(daysElapsed, 1);
+
+  const projectedReach = Math.round(
+    actualReach +
+      dailyReachRate *
+        daysRemaining
+  );
 
   // Projected budget exhaustion
-  const dailySpendRate = campaign.spentSoFar / Math.max(daysElapsed, 1)
-  const daysUntilBudgetExhausted = Math.round(budgetRemaining / Math.max(dailySpendRate, 1))
+  const dailySpendRate =
+    spent /
+    Math.max(daysElapsed, 1);
+
+  const daysUntilBudgetExhausted =
+    dailySpendRate > 0
+      ? Math.round(
+          budgetRemaining /
+            dailySpendRate
+        )
+      : Infinity;
 
   return {
     // Campaign identity
@@ -41,245 +117,677 @@ const buildCampaignContext = (campaign, campaignAnalytics, channelMeta, segmentM
     name: campaign.name,
     type: campaign.type,
     goal: campaign.goal,
-    description: campaign.description,
-    channels: campaign.channels,
-    targetSegments: campaign.targetSegments,
+    description:
+      campaign.description || "",
+
+    channels:
+      campaign.channels || [],
+
+    targetSegments:
+      campaign.targetSegments || [],
+
     status: campaign.status,
 
     // Timeline
     startDate: campaign.startDate,
     endDate: campaign.endDate,
+
     totalDays,
+
     daysElapsed,
+
     daysRemaining,
-    percentTimeElapsed: Number(timePercent),
+
+    percentTimeElapsed:
+      Number(timePercent),
 
     // Budget
-    totalBudget: campaign.budget,
-    spent: campaign.spentSoFar,
+    totalBudget: budget,
+
+    spent,
+
     budgetRemaining,
-    budgetUtilisation: Number(budgetUtilisation),
+
+    budgetUtilisation:
+      Number(budgetUtilisation),
 
     // Reach
-    targetReach: campaign.targetReach,
-    actualReach: campaign.actualReach,
-    reachEfficiency: Number(reachEfficiency),
+    targetReach,
+
+    actualReach,
+
+    reachEfficiency:
+      Number(reachEfficiency),
 
     // Projections
     projectedReach,
-    willHitTarget: projectedReach >= campaign.targetReach,
+
+    willHitTarget:
+      projectedReach >= targetReach,
+
     daysUntilBudgetExhausted,
 
-    // Analytics metadata (no PII — aggregated KPIs only)
-    channelPerformance: channelMeta || null,
-    segmentPerformance: segmentMeta || null
+    // Analytics metadata
+    channelPerformance:
+      channelMeta || null,
+
+    segmentPerformance:
+      segmentMeta || null,
+  };
+};
+
+// ============================================================
+// Helper — determine campaign health score
+// ============================================================
+
+const calculateHealthScore = (
+  context
+) => {
+  let score = 100;
+
+  // No activity yet
+  if (
+    context.actualReach === 0 &&
+    context.spent === 0
+  ) {
+    return 70;
   }
-}
 
-// Helper — determine campaign health score (0-100)
-const calculateHealthScore = (context) => {
-  let score = 100
+  // Budget efficiency
+  const budgetVsTime =
+    context.budgetUtilisation -
+    context.percentTimeElapsed;
 
-  // Budget efficiency — penalise if spending too fast vs reach
-  const budgetVsTime = context.budgetUtilisation - context.percentTimeElapsed
-  if (budgetVsTime > 20) score -= 25      // spending way ahead of time
-  else if (budgetVsTime > 10) score -= 10 // spending slightly fast
+  if (budgetVsTime > 20) {
+    score -= 25;
+  } else if (budgetVsTime > 10) {
+    score -= 10;
+  }
 
   // Reach efficiency
-  if (context.reachEfficiency < 50) score -= 30
-  else if (context.reachEfficiency < 75) score -= 15
-  else if (context.reachEfficiency >= 100) score += 10
+  if (
+    context.reachEfficiency < 50
+  ) {
+    score -= 30;
+  } else if (
+    context.reachEfficiency < 75
+  ) {
+    score -= 15;
+  } else if (
+    context.reachEfficiency >= 100
+  ) {
+    score += 10;
+  }
 
   // Will hit target?
-  if (!context.willHitTarget) score -= 20
+  if (!context.willHitTarget) {
+    score -= 20;
+  }
 
-  // Budget exhausting before campaign ends?
-  if (context.daysUntilBudgetExhausted < context.daysRemaining) score -= 15
+  // Budget exhaustion
+  if (
+    Number.isFinite(
+      context.daysUntilBudgetExhausted
+    ) &&
+    context.daysUntilBudgetExhausted <
+      context.daysRemaining
+  ) {
+    score -= 15;
+  }
 
-  return Math.max(0, Math.min(100, score))
-}
+  return Math.max(
+    0,
+    Math.min(100, score)
+  );
+};
 
+// ============================================================
 // Helper — health label
-const getHealthLabel = (score) => {
-  if (score >= 80) return 'on_track'
-  if (score >= 60) return 'needs_attention'
-  if (score >= 40) return 'at_risk'
-  return 'critical'
-}
+// ============================================================
 
-// GET /api/intelligence/:campaignId — generate intelligence report for a campaign
-router.get('/:campaignId', async (req, res) => {
-  try {
-    const db = req.app.locals.db
-    const { campaignId } = req.params
-    const { refresh = false } = req.query
+const getHealthLabel = (
+  score
+) => {
+  if (score >= 80)
+    return "on_track";
 
-    // Check if we have a recent report (generated today) — avoid unnecessary Groq calls
-    if (!refresh) {
-      const today = new Date().toISOString().split('T')[0]
-      const existing = await db.collection('campaign_intelligence').findOne(
-        { campaignId, generatedAt: { $gte: today } },
-        { projection: { _id: 0 } }
-      )
-      if (existing) {
-        return res.json({ ...existing, fromCache: true })
+  if (score >= 60)
+    return "needs_attention";
+
+  if (score >= 40)
+    return "at_risk";
+
+  return "critical";
+};
+
+// ============================================================
+// GET /api/intelligence/:campaignId
+// ============================================================
+
+router.get(
+  "/:campaignId",
+  async (req, res) => {
+    try {
+      const db =
+        req.app.locals.db;
+
+      const {
+        campaignId,
+      } = req.params;
+
+      const {
+        refresh = false,
+      } = req.query;
+
+      // ======================================================
+      // Check cache
+      // ======================================================
+
+      if (refresh !== "true") {
+        const today =
+          new Date()
+            .toISOString()
+            .split("T")[0];
+
+        const existing =
+          await db
+            .collection(
+              "campaign_intelligence"
+            )
+            .findOne(
+              {
+                campaignId,
+
+                generatedAt: {
+                  $gte: today,
+                },
+              },
+              {
+                projection: {
+                  _id: 0,
+                },
+              }
+            );
+
+        if (existing) {
+          return res.json({
+            ...existing,
+            fromCache: true,
+          });
+        }
       }
-    }
 
-    // Fetch campaign
-    const campaign = await db.collection('campaigns').findOne(
-      { id: campaignId },
-      { projection: { _id: 0 } }
-    )
-    if (!campaign) return res.status(404).json({ error: `Campaign ${campaignId} not found` })
+      // ======================================================
+      // Fetch campaign
+      // ======================================================
 
-    // Fetch campaign analytics
-    const campaignAnalytics = await db.collection('analytics_campaign').findOne(
-      { id: campaignId },
-      { projection: { _id: 0 } }
-    )
+      const campaign =
+        await db
+          .collection("campaigns")
+          .findOne(
+            {
+              id: campaignId,
+            },
+            {
+              projection: {
+                _id: 0,
+              },
+            }
+          );
 
-    // Fetch analytics metadata (GDPR safe — no PII)
-    const metadata = await db.collection('analytics_metadata').find({}, { projection: { _id: 0 } }).toArray()
-    const channelMeta = metadata.find(m => m.domain === 'channel_performance') || null
-    const segmentMeta = metadata.find(m => m.domain === 'customer_segments') || null
+      if (!campaign) {
+        return res
+          .status(404)
+          .json({
+            error: `Campaign ${campaignId} not found`,
+          });
+      }
 
-    // Build context
-    const context = buildCampaignContext(campaign, campaignAnalytics, channelMeta, segmentMeta)
-    const healthScore = calculateHealthScore(context)
-    const health = getHealthLabel(healthScore)
+      // ======================================================
+      // Fetch campaign analytics
+      // ======================================================
 
-    // Build Groq prompt — metadata only, no PII
-    const prompt = `
+      const campaignAnalytics =
+        await db
+          .collection(
+            "analytics_campaign"
+          )
+          .findOne(
+            {
+              id: campaignId,
+            },
+            {
+              projection: {
+                _id: 0,
+              },
+            }
+          );
+
+      // ======================================================
+      // Fetch metadata
+      // ======================================================
+
+      const metadata =
+        await db
+          .collection(
+            "analytics_metadata"
+          )
+          .find(
+            {},
+            {
+              projection: {
+                _id: 0,
+              },
+            }
+          )
+          .toArray();
+
+      const channelMeta =
+        metadata.find(
+          (m) =>
+            m.domain ===
+            "channel_performance"
+        ) || null;
+
+      const segmentMeta =
+        metadata.find(
+          (m) =>
+            m.domain ===
+            "customer_segments"
+        ) || null;
+
+      // ======================================================
+      // Build context
+      // ======================================================
+
+      const context =
+        buildCampaignContext(
+          campaign,
+          campaignAnalytics,
+          channelMeta,
+          segmentMeta
+        );
+
+      const healthScore =
+        calculateHealthScore(
+          context
+        );
+
+      const health =
+        getHealthLabel(
+          healthScore
+        );
+
+      // ======================================================
+      // Build prompt
+      // ======================================================
+
+      const prompt = `
 You are a marketing campaign intelligence engine.
-Analyse this campaign and provide actionable recommendations.
 
-CAMPAIGN CONTEXT:
+Analyse this campaign and provide concise, actionable recommendations.
+
+CAMPAIGN:
 Name: ${context.name}
 Type: ${context.type}
 Goal: ${context.goal}
 Description: ${context.description}
-Channels: ${context.channels.join(', ')}
-Target Segments: ${context.targetSegments.join(', ')}
+Channels: ${
+        context.channels.join(", ") ||
+        "None"
+      }
+Target Segments: ${
+        context.targetSegments.join(
+          ", "
+        ) || "None"
+      }
 Status: ${context.status}
 
 TIMELINE:
-Start: ${context.startDate} | End: ${context.endDate}
-Days elapsed: ${context.daysElapsed} of ${context.totalDays} (${context.percentTimeElapsed}% complete)
+Start: ${context.startDate}
+End: ${context.endDate}
+Days elapsed: ${context.daysElapsed}
 Days remaining: ${context.daysRemaining}
+Time completed: ${context.percentTimeElapsed}%
 
 BUDGET:
 Total: ₹${context.totalBudget.toLocaleString()}
-Spent: ₹${context.spent.toLocaleString()} (${context.budgetUtilisation}% utilised)
+Spent: ₹${context.spent.toLocaleString()}
 Remaining: ₹${context.budgetRemaining.toLocaleString()}
+Utilisation: ${context.budgetUtilisation.toFixed(2)}%
 
 REACH:
 Target: ${context.targetReach.toLocaleString()}
-Actual: ${context.actualReach.toLocaleString()} (${context.reachEfficiency}% efficiency)
-Projected final reach at current pace: ${context.projectedReach.toLocaleString()}
-Will hit target: ${context.willHitTarget ? 'YES' : 'NO'}
+Actual: ${context.actualReach.toLocaleString()}
+Efficiency: ${context.reachEfficiency.toFixed(2)}%
+Projected final reach: ${context.projectedReach.toLocaleString()}
+Will hit target: ${
+        context.willHitTarget
+          ? "YES"
+          : "NO"
+      }
 
-PLATFORM ANALYTICS CONTEXT:
-${channelMeta ? `Best performing channel overall: ${channelMeta.bestChannel?.name} (${channelMeta.bestChannel?.avgConversionRate}% conversion)` : ''}
-${segmentMeta ? `Highest value segment: ${segmentMeta.highestValueSegment?.name} (avg LTV ₹${segmentMeta.highestValueSegment?.totalLTV?.toLocaleString()})` : ''}
+PLATFORM ANALYTICS:
 
-Respond in this exact format:
+Best performing channel:
+${
+  channelMeta?.bestChannel
+    ?.name || "Unknown"
+}
 
-AM_I_DOING_IT_RIGHT:
-[2-3 sentences — honest assessment of current campaign performance]
+Best channel conversion:
+${
+  channelMeta?.bestChannel
+    ?.avgConversionRate || 0
+}%
 
-WHAT_IS_WORKING:
-[2 specific things that are going well]
+Highest value segment:
+${
+  segmentMeta
+    ?.highestValueSegment
+    ?.name || "Unknown"
+}
 
-WHAT_IS_NOT_WORKING:
-[2 specific things that need attention]
+Highest segment LTV:
+₹${
+  segmentMeta
+    ?.highestValueSegment
+    ?.totalLTV
+    ?.toLocaleString() || "0"
+}
 
-BEST_I_CAN_DO:
-[3 specific, actionable recommendations to maximise results with remaining budget and time]
+Return ONLY valid JSON.
 
-GOAL_FORECAST:
-[1-2 sentences — will they hit their goal? what's the realistic outcome?]
+Use exactly this structure:
 
-Keep responses concise and specific. Use ₹ for currency. No markdown formatting.
-    `
+{
+  "amIDoingItRight": "Short honest assessment.",
+  "whatIsWorking": [
+    "Specific positive point.",
+    "Specific positive point."
+  ],
+  "whatIsNotWorking": [
+    "Specific issue.",
+    "Specific issue."
+  ],
+  "bestICanDo": [
+    "Actionable recommendation.",
+    "Actionable recommendation.",
+    "Actionable recommendation."
+  ],
+  "goalForecast": "Short realistic forecast."
+}
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 700,
-      temperature: 0.6
-    })
+Rules:
+- Valid JSON only.
+- No markdown.
+- No code fences.
+- No text outside JSON.
+- Exactly 2 working points.
+- Exactly 2 issues.
+- Exactly 3 recommendations.
+- Keep responses concise.
+- Do not invent PII.
+- Use campaign data provided above.
+- If the campaign has no activity yet, explicitly mention that performance data is not available yet.
+`;
 
-    const rawAnalysis = response.choices[0].message.content.trim()
+      // ======================================================
+      // Groq
+      // ======================================================
 
-    // Parse sections from Groq response
-    const parseSection = (text, key) => {
-      const regex = new RegExp(`${key}:\\s*([\\s\\S]*?)(?=\\n[A-Z_]+:|$)`)
-      const match = text.match(regex)
-      return match ? match[1].trim() : ''
+      const response =
+        await groq.chat.completions.create(
+          {
+            model:
+              "openai/gpt-oss-20b",
+
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a marketing campaign intelligence engine. Return only valid JSON.",
+              },
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+
+            response_format: {
+              type: "json_object",
+            },
+
+            max_tokens: 1500,
+
+            temperature: 0.2,
+          }
+        );
+
+      // ======================================================
+      // Get Groq response
+      // ======================================================
+
+      const rawAnalysis =
+        response?.choices?.[0]
+          ?.message?.content
+          ?.trim();
+
+      if (!rawAnalysis) {
+        throw new Error(
+          "Groq returned an empty response"
+        );
+      }
+
+      console.log(
+        `AI intelligence generated for ${campaignId}`
+      );
+
+      // ======================================================
+      // Parse JSON
+      // ======================================================
+
+      let parsedAnalysis;
+
+      try {
+        parsedAnalysis =
+          JSON.parse(
+            rawAnalysis
+          );
+      } catch (parseError) {
+        console.error(
+          "Invalid JSON from Groq:",
+          rawAnalysis
+        );
+
+        throw new Error(
+          "Groq returned invalid JSON"
+        );
+      }
+
+      // ======================================================
+      // Validate response
+      // ======================================================
+
+      const analysis = {
+        amIDoingItRight:
+          parsedAnalysis
+            .amIDoingItRight ||
+          "There is currently insufficient information to evaluate campaign performance.",
+
+        whatIsWorking:
+          Array.isArray(
+            parsedAnalysis
+              .whatIsWorking
+          )
+            ? parsedAnalysis
+                .whatIsWorking
+            : [],
+
+        whatIsNotWorking:
+          Array.isArray(
+            parsedAnalysis
+              .whatIsNotWorking
+          )
+            ? parsedAnalysis
+                .whatIsNotWorking
+            : [],
+
+        bestICanDo:
+          Array.isArray(
+            parsedAnalysis
+              .bestICanDo
+          )
+            ? parsedAnalysis
+                .bestICanDo
+            : [],
+
+        goalForecast:
+          parsedAnalysis
+            .goalForecast ||
+          "There is currently insufficient information to forecast the campaign outcome.",
+      };
+
+      // ======================================================
+      // Build final report
+      // ======================================================
+
+      const report = {
+        campaignId,
+
+        campaignName:
+          campaign.name,
+
+        generatedAt:
+          new Date().toISOString(),
+
+        // Health
+        healthScore,
+
+        health,
+
+        onTrack:
+          context.willHitTarget,
+
+        // Metrics
+        metrics: {
+          budgetUtilisation:
+            context.budgetUtilisation,
+
+          budgetRemaining:
+            context.budgetRemaining,
+
+          reachEfficiency:
+            context.reachEfficiency,
+
+          daysRemaining:
+            context.daysRemaining,
+
+          percentTimeElapsed:
+            context.percentTimeElapsed,
+
+          projectedReach:
+            context.projectedReach,
+
+          targetReach:
+            context.targetReach,
+
+          willHitTarget:
+            context.willHitTarget,
+        },
+
+        // AI analysis
+        analysis,
+
+        // Keep this for debugging
+        fullAnalysis:
+          rawAnalysis,
+      };
+
+      // ======================================================
+      // Save to MongoDB
+      // ======================================================
+
+      await db
+        .collection(
+          "campaign_intelligence"
+        )
+        .replaceOne(
+          {
+            campaignId,
+          },
+          report,
+          {
+            upsert: true,
+          }
+        );
+
+      // ======================================================
+      // Response
+      // ======================================================
+
+      res.json({
+        ...report,
+        fromCache: false,
+      });
+
+    } catch (err) {
+      console.error(
+        "INTELLIGENCE ERROR:",
+        err
+      );
+
+      res.status(500).json({
+        error: err.message,
+      });
     }
-
-    const parsedAnalysis = {
-      amIDoingItRight:   parseSection(rawAnalysis, 'AM_I_DOING_IT_RIGHT'),
-      whatIsWorking:     parseSection(rawAnalysis, 'WHAT_IS_WORKING'),
-      whatIsNotWorking:  parseSection(rawAnalysis, 'WHAT_IS_NOT_WORKING'),
-      bestICanDo:        parseSection(rawAnalysis, 'BEST_I_CAN_DO'),
-      goalForecast:      parseSection(rawAnalysis, 'GOAL_FORECAST'),
-    }
-
-    // Build final intelligence report
-    const report = {
-      campaignId,
-      campaignName: campaign.name,
-      generatedAt: new Date().toISOString(),
-
-      // Health
-      healthScore,
-      health,
-      onTrack: context.willHitTarget,
-
-      // Key metrics snapshot
-      metrics: {
-        budgetUtilisation: context.budgetUtilisation,
-        budgetRemaining: context.budgetRemaining,
-        reachEfficiency: context.reachEfficiency,
-        daysRemaining: context.daysRemaining,
-        percentTimeElapsed: context.percentTimeElapsed,
-        projectedReach: context.projectedReach,
-        targetReach: context.targetReach,
-        willHitTarget: context.willHitTarget
-      },
-
-      // AI analysis
-      analysis: parsedAnalysis,
-      fullAnalysis: rawAnalysis
-    }
-
-    // Save to MongoDB — upsert so re-running updates the report
-    await db.collection('campaign_intelligence').replaceOne(
-      { campaignId },
-      report,
-      { upsert: true }
-    )
-
-    res.json({ ...report, fromCache: false })
-
-  } catch (err) {
-    res.status(500).json({ error: err.message })
   }
-})
+);
 
-// GET /api/intelligence — get latest intelligence for ALL campaigns
-router.get('/', async (req, res) => {
-  try {
-    const db = req.app.locals.db
-    const reports = await db.collection('campaign_intelligence')
-      .find({}, { projection: { _id: 0, fullAnalysis: 0 } })
-      .toArray()
-    res.json({ count: reports.length, reports })
-  } catch (err) {
-    res.status(500).json({ error: err.message })
+// ============================================================
+// GET /api/intelligence
+// Get latest intelligence for ALL campaigns
+// ============================================================
+
+router.get(
+  "/",
+  async (req, res) => {
+    try {
+      const db =
+        req.app.locals.db;
+
+      const reports =
+        await db
+          .collection(
+            "campaign_intelligence"
+          )
+          .find(
+            {},
+            {
+              projection: {
+                _id: 0,
+                fullAnalysis: 0,
+              },
+            }
+          )
+          .toArray();
+
+      res.json({
+        count: reports.length,
+        reports,
+      });
+
+    } catch (err) {
+      console.error(
+        "GET ALL INTELLIGENCE ERROR:",
+        err
+      );
+
+      res.status(500).json({
+        error: err.message,
+      });
+    }
   }
-})
+);
 
-module.exports = router
+module.exports = router;
