@@ -1,8 +1,10 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export const api = {
+
   // ==========================================================
   // Campaigns
   // ==========================================================
@@ -66,53 +68,76 @@ export const api = {
   getSegmentInsights: () =>
     axios.get(`${BASE_URL}/insights/segments`),
 
+getCampaignIntelligence: (campaignId, refresh = false) =>
+  axios.get(`${BASE_URL}/intelligence/${campaignId}`, {
+    params: refresh ? { refresh: true } : {},
+  }),
+
+  // ==========================================================
+  // Audience
+  // ==========================================================
+
   filterAudience: (data) =>
-  axios.post(`${BASE_URL}/audience/filter`, data),
+    axios.post(`${BASE_URL}/audience/filter`, data),
 
-autoSelectAudience: (data) =>
-  axios.post(`${BASE_URL}/audience/auto-select`, data),
+  autoSelectAudience: (data) =>
+    axios.post(`${BASE_URL}/audience/auto-select`, data),
 
-getAudienceSegments: () =>
-  axios.get(`${BASE_URL}/audience/segments`),
-generateContent: (data) =>
-  axios.post(`${BASE_URL}/content/generate`, data),
+  getAudienceSegments: () =>
+    axios.get(`${BASE_URL}/audience/segments`),
 
-getCampaignContent: (campaignId) =>
-  axios.get(`${BASE_URL}/content/${campaignId}`),
+  // ==========================================================
+  // Content
+  // ==========================================================
 
+  generateContent: (data) =>
+    axios.post(`${BASE_URL}/content/generate`, data),
 
-getCampaignIntelligence: (campaignId) =>
-  axios.get(`${BASE_URL}/intelligence/${campaignId}`),
-// ==========================================================
-// Email
-// ==========================================================
+  getCampaignContent: (campaignId) =>
+    axios.get(`${BASE_URL}/content/${campaignId}`),
 
-sendEmail: (data) =>
-  axios.post(`${BASE_URL}/execute/email/send`, data),
+  // ==========================================================
+  // Email
+  // ==========================================================
 
-scheduleEmail: (data) =>
-  axios.post(`${BASE_URL}/execute/email/schedule`, data),
+  sendEmail: (data) =>
+    axios.post(`${BASE_URL}/execute/email/send`, data),
 
-// ==========================================================
-// SMS
-// ==========================================================
+  scheduleEmail: (data) =>
+    axios.post(`${BASE_URL}/execute/email/schedule`, data),
 
-sendSMS: (data) =>
-  axios.post(`${BASE_URL}/execute/sms/send`, data),
+  // ==========================================================
+  // SMS
+  // ==========================================================
 
-scheduleSMS: (data) =>
-  axios.post(`${BASE_URL}/execute/sms/schedule`, data),
+  sendSMS: (data) =>
+    axios.post(`${BASE_URL}/execute/sms/send`, data),
 
-getScheduledJobs: () =>
-  axios.get(`${BASE_URL}/execute/scheduled`),
+  scheduleSMS: (data) =>
+    axios.post(`${BASE_URL}/execute/sms/schedule`, data),
 
-cancelScheduledJob: (id) =>
-  axios.delete(`${BASE_URL}/execute/scheduled/${id}`),
+  getScheduledJobs: () =>
+    axios.get(`${BASE_URL}/execute/scheduled`),
 
-getEmailLogs: () =>
-  axios.get(`${BASE_URL}/execute/logs/email`),
+  cancelScheduledJob: (id) =>
+    axios.delete(`${BASE_URL}/execute/scheduled/${id}`),
 
-getSMSLogs: () =>
-  axios.get(`${BASE_URL}/execute/logs/sms`),
+  getEmailLogs: () =>
+    axios.get(`${BASE_URL}/execute/logs/email`),
+
+  getSMSLogs: () =>
+    axios.get(`${BASE_URL}/execute/logs/sms`),
+
+  // ==========================================================
+  // Chatbot
+  // ==========================================================
+
+  sendChatMessage: (message, sessionId) =>
+    axios.post(`${BASE_URL}/chat`, {
+      message,
+      sessionId,
+    }),
+
+  clearChatSession: (sessionId) =>
+    axios.delete(`${BASE_URL}/chat/session/${sessionId}`),
 };
-

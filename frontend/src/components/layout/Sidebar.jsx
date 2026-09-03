@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { FileText } from "lucide-react";
 import {
   LayoutDashboard,
   Megaphone,
@@ -9,6 +8,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  FileText,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -36,9 +36,9 @@ const navigation = [
     path: "/analytics",
   },
   {
-  title: "Content Studio",
-  icon: FileText,
-  path: "/content",
+    title: "Content Studio",
+    icon: FileText,
+    path: "/content",
   },
   {
     title: "AI Insights",
@@ -59,50 +59,71 @@ export default function Sidebar() {
         duration: 0.25,
       }}
       className="
-      sticky
-      top-0
-      h-screen
-      bg-brand-ink
-      border-r
-      border-white/10
-      flex
-      flex-col
-      text-brand-paper"
+        sticky
+        top-0
+        h-screen
+        bg-brand-ink
+        border-r
+        border-white/10
+        flex
+        flex-col
+        text-brand-paper
+        transition-colors
+      "
     >
       {/* Header */}
 
-<div className="h-24 px-5 flex items-center gap-3 border-b border-white/10">
+      <div
+        className="
+          h-24
+          px-5
+          flex
+          items-center
+          gap-3
+          border-b
+          border-white/10
+        "
+      >
+        <Logo collapsed={collapsed} />
 
-  <Logo collapsed={collapsed} />
-
-  <button
-    onClick={() => setCollapsed(!collapsed)}
-    className="
-      h-9
-      w-9
-      rounded-xl
-      flex
-      items-center
-      justify-center
-      hover:bg-white/10
-      transition
-    "
-  >
-    {collapsed ? (
-      <ChevronRight size={18} />
-    ) : (
-      <ChevronLeft size={18} />
-    )}
-  </button>
-
-</div>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="
+            h-9
+            w-9
+            rounded-xl
+            flex
+            items-center
+            justify-center
+            text-brand-paper/80
+            hover:bg-white/10
+            hover:text-white
+            transition
+          "
+        >
+          {collapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronLeft size={18} />
+          )}
+        </button>
+      </div>
 
       {/* Navigation */}
 
       <div className="flex-1 px-4 py-8">
 
         {!collapsed && (
-          <p className="mb-5 px-3 text-xs uppercase tracking-[0.2em] text-brand-slate">
+          <p
+            className="
+              mb-5
+              px-3
+              text-xs
+              uppercase
+              tracking-[0.2em]
+              text-brand-slate
+            "
+          >
             Workspace
           </p>
         )}
@@ -119,21 +140,29 @@ export default function Sidebar() {
                 end={item.path === "/"}
                 className={({ isActive }) =>
                   `
-                  flex
-                  items-center
-                  gap-3
-                  rounded-2xl
-                  px-4
-                  py-3
-                  font-medium
-                  transition-all
-                  duration-200
+                    flex
+                    items-center
+                    gap-3
+                    rounded-2xl
+                    px-4
+                    py-3
+                    font-medium
+                    transition-all
+                    duration-200
 
-                  ${
-                    isActive
-                      ? "bg-brand-coral text-white shadow-card"
-                      : "text-brand-paper/70 hover:bg-white/10 hover:text-white"
-                  }
+                    ${
+                      isActive
+                        ? `
+                          bg-brand-coral
+                          text-white
+                          shadow-card
+                        `
+                        : `
+                          text-brand-paper/70
+                          hover:bg-white/10
+                          hover:text-white
+                        `
+                    }
                   `
                 }
               >
@@ -147,84 +176,101 @@ export default function Sidebar() {
           })}
 
         </div>
-
       </div>
 
       {/* Footer */}
 
-      <div className="border-t border-white/10 p-4">
+      <div
+        className="
+          border-t
+          border-white/10
+          p-4
+        "
+      >
+
+        {/* Settings */}
 
         <button
           className="
-          flex
-          items-center
-          gap-3
-          w-full
-          rounded-2xl
-          px-4
-          py-3
-          text-brand-paper/70
-          hover:bg-white/10
-          hover:text-white
-          transition"
+            flex
+            items-center
+            gap-3
+            w-full
+            rounded-2xl
+            px-4
+            py-3
+            text-brand-paper/70
+            hover:bg-white/10
+            hover:text-white
+            transition
+          "
         >
           <Settings size={20} />
 
           {!collapsed && (
             <span>Settings</span>
           )}
-
         </button>
 
-        {!collapsed && (
+        {/* Profile */}
 
+        {!collapsed && (
           <div
             className="
-            mt-5
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/5
-            p-4"
+              mt-5
+              rounded-2xl
+              border
+              border-white/10
+              bg-white/5
+              p-4
+              transition
+              hover:bg-white/10
+            "
           >
-
             <div className="flex items-center gap-3">
 
               <div
                 className="
-                h-11
-                w-11
-                rounded-full
-                bg-brand-coral
-                flex
-                items-center
-                justify-center
-                text-white
-                font-bold"
+                  h-11
+                  w-11
+                  rounded-full
+                  bg-brand-coral
+                  flex
+                  items-center
+                  justify-center
+                  text-white
+                  font-bold
+                "
               >
                 N
               </div>
 
               <div>
-
-                <h3 className="text-sm font-semibold text-white">
+                <h3
+                  className="
+                    text-sm
+                    font-semibold
+                    text-white
+                  "
+                >
                   Nikhil Sai
                 </h3>
 
-                <p className="text-xs text-brand-slate">
+                <p
+                  className="
+                    text-xs
+                    text-brand-slate
+                  "
+                >
                   Marketing Manager
                 </p>
-
               </div>
 
             </div>
-
           </div>
-
         )}
 
       </div>
-
     </motion.aside>
   );
 }

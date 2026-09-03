@@ -128,18 +128,25 @@ const [intelligenceLoading, setIntelligenceLoading] = useState(false);
     }
   }
 
-  async function handleIntelligence(campaignId) {
+ async function handleIntelligence(campaignId) {
   try {
     setIntelligenceLoading(true);
     setOpenIntelligence(true);
 
-    const res = await api.getCampaignIntelligence(campaignId);
+    const res =
+      await api.getCampaignIntelligence(campaignId);
 
     setIntelligence(res.data);
+
   } catch (err) {
     console.error(err);
-    toast.error("Unable to generate campaign insight");
+
+    toast.error(
+      "Unable to generate campaign insight"
+    );
+
     setOpenIntelligence(false);
+
   } finally {
     setIntelligenceLoading(false);
   }

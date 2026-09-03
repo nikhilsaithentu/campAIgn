@@ -8,6 +8,7 @@ import Analytics from "./pages/Analytics";
 import Targeting from "./pages/Audience";
 import Insights from "./pages/Copilot";
 import ContentStudio from "./pages/ContentStudio";
+import Chatbot from "./components/chat/Chatbot";
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
         </Route>
 
       </Routes>
+      <Chatbot />
 
     </BrowserRouter>
   );
