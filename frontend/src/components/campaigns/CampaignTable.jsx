@@ -1,7 +1,11 @@
 import Card from "../ui/Card";
 import CampaignRow from "./CampaignRow";
 
-export default function CampaignTable({ campaigns = [] }) {
+export default function CampaignTable({ campaigns = [],
+  onEdit,
+  onDelete,
+  onIntelligence,
+  onStatusChange, }) {
   return (
     <Card
       title="Campaign Performance"
@@ -35,6 +39,10 @@ export default function CampaignTable({ campaigns = [] }) {
                 Reach
               </th>
 
+              <th className="px-6 py-4 text-right text-xs uppercase tracking-wider text-brand-slate font-semibold">
+                 Actions
+              </th>
+
             </tr>
 
           </thead>
@@ -46,6 +54,10 @@ export default function CampaignTable({ campaigns = [] }) {
               <CampaignRow
                 key={campaign.id}
                 campaign={campaign}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onStatusChange={onStatusChange}
+                onIntelligence={onIntelligence}
               />
 
             ))}

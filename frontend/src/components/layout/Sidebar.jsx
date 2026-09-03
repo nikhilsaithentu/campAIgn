@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { FileText } from "lucide-react";
 import {
   LayoutDashboard,
   Megaphone,
@@ -33,6 +34,11 @@ const navigation = [
     title: "Analytics",
     icon: BarChart3,
     path: "/analytics",
+  },
+  {
+  title: "Content Studio",
+  icon: FileText,
+  path: "/content",
   },
   {
     title: "AI Insights",

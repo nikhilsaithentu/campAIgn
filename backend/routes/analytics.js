@@ -1,42 +1,49 @@
+// // Helper function — reuse across all analytics routes
+// const getLatestWeekData = async (db, collectionName) => {
+//   const latest = await db.collection(collectionName)
+//     .findOne({}, { sort: { week: -1 }, projection: { week: 1, _id: 0 } })
+
+//   if (!latest) return []
+
+//   return db.collection(collectionName)
+//     .find({ week: latest.week }, { projection: { _id: 0 } })
+//     .toArray()
+// }
+
+
 const express = require('express')
 const router = express.Router()
 
-// GET /api/analytics/channel
+const getLatestWeekData = async (db, collectionName) => {
+  const latest = await db.collection(collectionName)
+    .findOne({}, { sort: { week: -1 }, projection: { week: 1, _id: 0 } })
+  if (!latest) return []
+  return db.collection(collectionName)
+    .find({ week: latest.week }, { projection: { _id: 0 } })
+    .toArray()
+}
+
 router.get('/channel', async (req, res) => {
   try {
-    const db = req.app.locals.db
-    const data = await db
-      .collection('analytics_channel')
-      .find({}, { projection: { _id: 0 } })
-      .toArray()
+    const data = await getLatestWeekData(req.app.locals.db, 'analytics_channel')
     res.json(data)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// GET /api/analytics/segment
 router.get('/segment', async (req, res) => {
   try {
-    const db = req.app.locals.db
-    const data = await db
-      .collection('analytics_segment')
-      .find({}, { projection: { _id: 0 } })
-      .toArray()
+    const data = await getLatestWeekData(req.app.locals.db, 'analytics_segment')
     res.json(data)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// GET /api/analytics/channel-segment
 router.get('/channel-segment', async (req, res) => {
   try {
-    const db = req.app.locals.db
-    const data = await db
-      .collection('analytics_channel_segment')
-      .find({}, { projection: { _id: 0 } })
-      .toArray()
+    const data = await getLatestWeekData(req.app.locals.db, 'analytics_channel_segment')
     res.json(data)
   } catch (err) {
     res.status(500).json({ error: err.message })

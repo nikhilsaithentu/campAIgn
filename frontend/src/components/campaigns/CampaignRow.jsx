@@ -1,12 +1,15 @@
+import { useState } from "react";
+
 import StatusBadge from "./StatusBadge";
 import BudgetProgress from "./BudgetProgress";
 import ReachProgress from "./ReachProgress";
 import ChannelBadges from "./ChannelBadges";
+import CampaignActions from "./CampaignActions";
 
 function formatGoal(goal) {
   return goal
     ?.replaceAll("_", " ")
-    .replace(/\b\w/g, c => c.toUpperCase());
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatDate(date) {
@@ -17,15 +20,20 @@ function formatDate(date) {
   });
 }
 
-export default function CampaignRow({ campaign }) {
+export default function CampaignRow({
+  campaign,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  onIntelligence,
+}) {
   return (
     <tr
       className="
       border-b
       border-brand-border
       hover:bg-brand-paper/60
-      transition-colors
-      cursor-pointer"
+      transition-colors"
     >
       {/* Campaign */}
 
@@ -35,7 +43,7 @@ export default function CampaignRow({ campaign }) {
           {campaign.name}
         </h3>
 
-        <p className="text-sm text-brand-slate capitalize">
+        <p className="text-sm capitalize text-brand-slate">
           {campaign.type} Campaign
         </p>
 
@@ -50,11 +58,9 @@ export default function CampaignRow({ campaign }) {
       {/* Goal */}
 
       <td className="px-6 py-5">
-
         <span className="font-medium text-brand-ink">
           {formatGoal(campaign.goal)}
         </span>
-
       </td>
 
       {/* Channels */}
@@ -106,6 +112,43 @@ export default function CampaignRow({ campaign }) {
         </div>
 
       </td>
+
+{/* Actions */}
+
+<td className="px-6 py-5">
+
+  <div className="flex items-center justify-end gap-2">
+
+    <CampaignActions
+      campaign={campaign}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onStatusChange={onStatusChange}
+    />
+
+  <button
+  onClick={() => onIntelligence(campaign.id)}
+  className="
+    inline-flex
+    items-center
+    gap-2
+    rounded-lg
+    bg-brand-coral
+    px-3
+    py-2
+    text-sm
+    font-medium
+    text-white
+    transition
+    hover:opacity-90
+  "
+>
+  🤖 AI Insight
+</button>
+
+  </div>
+
+</td>
 
     </tr>
   );

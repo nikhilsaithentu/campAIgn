@@ -7,6 +7,7 @@ import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Targeting from "./pages/Audience";
 import Insights from "./pages/Copilot";
+import ContentStudio from "./pages/ContentStudio";
 
 export default function App() {
   return (
@@ -39,6 +40,11 @@ export default function App() {
           <Route
             path="insights"
             element={<Insights />}
+          />
+
+          <Route
+          path="/content"
+          element={<ContentStudio />}
           />
 
         </Route>
