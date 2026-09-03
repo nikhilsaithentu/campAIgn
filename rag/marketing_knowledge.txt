@@ -1,0 +1,310 @@
+================================================================================
+MARKETING PLATFORM KNOWLEDGE BASE
+Static Domain Knowledge — Version 1.0
+================================================================================
+This file contains marketing domain knowledge used by the RAG chatbot.
+It covers campaign types, KPI definitions, channel best practices,
+audience targeting concepts, and platform-specific guidance.
+================================================================================
+
+
+================================================================================
+SECTION 1 — CAMPAIGN TYPES
+================================================================================
+
+PROMOTIONAL CAMPAIGN
+A promotional campaign targets a broad audience with time-limited offers,
+discounts, or seasonal deals. The primary goal is to increase sales volume
+in a short period. Promotional campaigns work best for Young Professionals
+and Premium Shoppers who are actively looking for deals.
+Typical open rate: 25-35%.
+Typical conversion rate: 2-4%.
+Best channels: email, social, web.
+Best segments: Young Professional, Premium Shopper.
+Budget tip: Allocate 40% to email, 40% to social, 20% to web for best ROI.
+When to use: Product launches, seasonal sales, flash sales, clearance events.
+Risk: High unsubscribe rate if sent too frequently. Limit to once per week.
+
+RETENTION CAMPAIGN
+A retention campaign targets existing high-value customers with the goal of
+preventing churn and deepening loyalty. These customers already know the brand
+and respond to personalised, exclusive offers rather than generic discounts.
+Typical open rate: 55-70%.
+Typical conversion rate: 10-20%.
+Best channels: email, direct.
+Best segments: Senior Professional, Premium Shopper, VIP customers.
+Budget tip: Direct channel has highest conversion (40%+) but is expensive.
+Use email for volume, direct for top VIP customers only.
+When to use: When high-value customers show reduced activity, after major purchase,
+anniversary campaigns, loyalty reward programs.
+Risk: Low risk of churn if done right. Over-contacting can feel intrusive.
+
+LIFECYCLE CAMPAIGN
+A lifecycle campaign nurtures new customers through an automated onboarding
+sequence. It educates them about the product, builds trust, and guides them
+toward their first purchase. Typically delivered as a drip email sequence
+over 7-14 days.
+Typical open rate: 50-65%.
+Typical conversion rate: 5-8%.
+Best channels: email.
+Best segments: Student, new customers, first-time buyers.
+Budget tip: Low cost per send since it is automated. Invest in content quality.
+When to use: Immediately after a new customer registers or makes first purchase.
+Risk: Poor onboarding leads to early churn. Personalisation is critical.
+
+REENGAGEMENT CAMPAIGN
+A reengagement campaign targets customers who have been inactive for 60 or
+more days. The goal is reactivation — bringing them back before they churn
+permanently. These campaigns need a strong incentive since the customer has
+already disengaged.
+Typical open rate: 15-25%.
+Typical conversion rate: 0.5-2%.
+Best channels: email, SMS.
+Best segments: Young Professional, Student — customers who were once active.
+Budget tip: Keep spend low — reengagement has low ROI. If open rate stays
+below 10% after two attempts, remove from active lists.
+When to use: After 60 days of inactivity. One attempt at 60 days, one at 90 days.
+Risk: High unsubscribe and spam complaint rate. Use sparingly with strong offers.
+
+AWARENESS CAMPAIGN
+An awareness campaign introduces the brand or a new product to a broad audience.
+The primary goal is reach and impressions rather than immediate conversion.
+ROI is measured in brand recall and top-of-funnel growth rather than direct sales.
+Typical click rate: 3-6%.
+Typical conversion rate: 0.3-0.5%.
+Best channels: social, web.
+Best segments: All segments — broad reach is the goal.
+Budget tip: Social gives highest reach per rupee for awareness. Web retargeting
+converts awareness into consideration.
+When to use: New product launches, entering new markets, rebranding.
+Risk: Hard to measure direct ROI. Set reach and impression targets, not sales targets.
+
+
+================================================================================
+SECTION 2 — MARKETING KPI DEFINITIONS
+================================================================================
+
+OPEN RATE
+Percentage of delivered emails that were opened by the recipient.
+Formula: (Emails Opened / Emails Delivered) x 100
+Industry benchmark: 20-25% for B2C marketing.
+Platform benchmark: 36% (email channel average across all campaigns).
+Good: Above 35%. Average: 20-35%. Poor: Below 20%.
+Action if poor: Improve subject lines, test send times, clean email list.
+
+CLICK RATE (CTR)
+Percentage of delivered emails where a recipient clicked at least one link.
+Formula: (Emails Clicked / Emails Delivered) x 100
+Industry benchmark: 2-5%.
+Platform benchmark: 9% (email channel average).
+Good: Above 8%. Average: 3-8%. Poor: Below 3%.
+Action if poor: Improve call-to-action, reduce number of links, personalise content.
+
+CONVERSION RATE
+Percentage of recipients who completed the desired action (purchase, signup, etc).
+Formula: (Conversions / Total Reached) x 100
+Benchmark varies by channel:
+  Email: 2-6% good, above 10% excellent.
+  Social: 0.3-1% good.
+  Web: 2-4% good.
+  Direct: 20-45% good (high intent audience).
+Platform benchmark: Email 2.7-17.5% depending on campaign type.
+
+COST PER CONVERSION
+Total campaign spend divided by number of conversions.
+Formula: Total Spend / Total Conversions
+Lower is better. Target varies by product margin.
+Platform benchmark: ₹10-₹90 depending on channel.
+Direct channel: ₹12 per conversion (most efficient).
+Social channel: ₹42 per conversion.
+Reengagement email: ₹89 per conversion (least efficient).
+
+REACH EFFICIENCY
+Percentage of target reach actually achieved.
+Formula: (Actual Reach / Target Reach) x 100
+Good: Above 85%. Average: 70-85%. Poor: Below 70%.
+Platform benchmark: 68-112% across campaigns.
+
+BUDGET UTILISATION
+Percentage of campaign budget spent so far.
+Formula: (Spent / Total Budget) x 100
+Compare against percentage of campaign time elapsed.
+If budget utilisation significantly exceeds time elapsed — spending too fast.
+If budget utilisation significantly lags time elapsed — underspending.
+Ideal: Budget utilisation should track within 10% of time elapsed.
+
+LIFETIME VALUE (LTV)
+Total revenue a customer is expected to generate over their relationship
+with the brand.
+Platform average LTV: ₹24,537.
+Premium Shopper average LTV: ₹49,000 (highest).
+Student average LTV: ₹2,800 (lowest).
+Use LTV to prioritise which segments deserve higher campaign spend.
+
+UNSUBSCRIBE RATE
+Percentage of recipients who unsubscribe after receiving a campaign.
+Formula: (Unsubscribes / Emails Delivered) x 100
+Acceptable: Below 0.3%. Warning: 0.3-0.5%. Critical: Above 0.5%.
+High unsubscribe rate signals: wrong audience, wrong frequency, poor content.
+
+
+================================================================================
+SECTION 3 — CHANNEL BEST PRACTICES
+================================================================================
+
+EMAIL CHANNEL
+Best for: Retention, lifecycle, reengagement campaigns.
+Highest ROI channel overall. Personalisation increases open rates by 26%.
+Best send times: Tuesday to Thursday, 9am-11am or 2pm-4pm.
+Subject line best practices:
+  — Keep under 50 characters.
+  — Use the customer name in subject line.
+  — Create urgency without being clickbait.
+  — Avoid spam trigger words (FREE, URGENT, ACT NOW).
+Frequency: Maximum 2 emails per week per customer. More causes fatigue.
+Personalisation: Use customer name, reference past purchases, segment-specific offers.
+Platform performance: 36% open rate, 9% click rate across all campaigns.
+
+SOCIAL CHANNEL
+Best for: Awareness, promotional campaigns. High reach, lower conversion.
+Best for Young Professional and Student segments who are social-active.
+Platform performance: 4-6% click rate, 0.28-0.42% conversion rate.
+Best use: Top of funnel — drive awareness and traffic, convert via email/web retargeting.
+Budget allocation: Use social for reach, email for conversion.
+
+DIRECT CHANNEL
+Best for: VIP and high-value retention campaigns.
+Highest conversion rate (43.2%) but most expensive per send.
+Reserve exclusively for Senior Professional and Premium Shopper segments.
+Platform performance: 90% open rate, 72% click rate, 43.2% conversion rate.
+Never use for broad audiences — cost per send is too high.
+
+WEB CHANNEL
+Best for: Awareness and promotional campaigns driving site traffic.
+Works best paired with email or social (retargeting).
+Platform performance: 3% conversion rate, 38% bounce rate average.
+Reduce bounce rate by: matching landing page to ad message, fast load times,
+clear call to action above the fold.
+
+SMS CHANNEL
+Best for: Urgent promotions, reengagement, time-sensitive offers.
+Highest open rate of all channels (98%) but intrusive if overused.
+Best for Indian market — WhatsApp and SMS have high engagement.
+Keep messages under 160 characters. Include opt-out option.
+Frequency: Maximum 2 SMS per month per customer.
+Never send between 9pm and 8am.
+
+
+================================================================================
+SECTION 4 — AUDIENCE TARGETING
+================================================================================
+
+ML-BASED TARGETING
+The platform uses a Random Forest machine learning model to score each customer
+on their likelihood to respond to each campaign type. Scores range from 0 to 1.
+A score of 0.7 or above indicates high likelihood of response.
+The model considers: customer segment, preferred channel, lifetime value,
+total purchases, and age.
+Auto-select feature automatically identifies customers above confidence threshold.
+Recommended minimum confidence threshold: 0.5 for most campaigns.
+For high-value campaigns (retention, VIP): use 0.7 threshold.
+
+CUSTOMER SEGMENTS
+Young Professional: Age 22-35, moderate spenders, tech-savvy, social and email active.
+  Average LTV: ₹10,500. Responds to: promotional, reengagement campaigns.
+
+Premium Shopper: High purchase frequency, brand loyal, high LTV.
+  Average LTV: ₹49,000. Responds to: retention, awareness campaigns.
+
+Student: Price-sensitive, new customers, low LTV, deal-seekers.
+  Average LTV: ₹2,800. Responds to: lifecycle, promotional campaigns with discounts.
+
+Senior Professional: Highest LTV, low churn risk, prefers email and direct.
+  Average LTV: ₹78,500. Responds to: retention, VIP loyalty campaigns.
+
+AUDIENCE SELECTION BEST PRACTICES
+Always use ML auto-select as a starting point — it is data-driven.
+Review auto-selected audience before confirming — check segment distribution.
+Avoid targeting the same customer with more than 2 campaigns simultaneously.
+For reengagement — only target customers inactive for 60-90 days, not longer.
+For retention — prioritise customers with LTV above ₹30,000.
+For promotional — broader audience is fine, prioritise email-active customers.
+
+
+================================================================================
+SECTION 5 — BUDGET MANAGEMENT
+================================================================================
+
+BUDGET ALLOCATION BY CHANNEL
+Based on platform performance data, recommended budget allocation:
+  Email: 40% of budget — highest ROI, lowest cost per conversion.
+  Direct: 25% of budget — highest conversion rate, use for VIP only.
+  Web: 20% of budget — good for promotional and awareness.
+  Social: 15% of budget — best for reach and awareness, lower conversion.
+  SMS: Supplement email, not replace — use for urgency and reengagement.
+
+BUDGET PACING
+Monitor budget utilisation vs time elapsed weekly.
+If budget utilisation is more than 15% ahead of time elapsed — slow down spend.
+If budget utilisation is more than 15% behind time elapsed — increase frequency.
+Never exhaust budget before campaign end date — leave 10% for last-week push.
+
+ROI BY CAMPAIGN TYPE (Platform Data)
+Retention: Highest ROI — VIP Loyalty generated ₹2,63,500 on ₹18,500 spend (14x).
+Promotional: Good ROI — Summer Sale generated ₹6,47,500 on ₹32,000 spend (20x).
+Lifecycle: Moderate ROI — good for long-term LTV but low immediate revenue.
+Reengagement: Lowest ROI — high cost per conversion, use sparingly.
+Awareness: Difficult to measure direct ROI — track reach and brand metrics.
+
+COST BENCHMARKS (Platform Data)
+Cost per email send: approximately ₹2.
+Cost per SMS send: approximately ₹0.50 (Fast2SMS).
+Cost per direct mail: approximately ₹15-25.
+Cost per social impression: approximately ₹0.50-1.
+
+
+================================================================================
+SECTION 6 — PLATFORM SPECIFIC GUIDANCE
+================================================================================
+
+CAMPAIGN CREATION WORKFLOW
+1. Define campaign type and goal clearly before creating.
+2. Set realistic reach targets based on available audience size.
+3. Use ML auto-select for audience — review before confirming.
+4. Generate AI content — always personalise with segment-specific tone.
+5. Review content before sending — AI output should be edited, not sent raw.
+6. Send immediately for time-sensitive campaigns, schedule for planned ones.
+7. Monitor performance after 24 hours — check open rate and click rate.
+8. Use Campaign Intelligence Engine to get AI recommendations mid-campaign.
+
+CAMPAIGN INTELLIGENCE ENGINE
+The platform provides per-campaign AI analysis answering:
+  — Am I doing it right?
+  — What is working and what is not?
+  — What is the best I can do with remaining budget?
+  — Will I hit my goal?
+Intelligence reports are generated fresh daily and cached for performance.
+Use refresh=true parameter to force a new analysis.
+
+WHEN TO PAUSE A CAMPAIGN
+Pause if open rate drops below 10% for email campaigns.
+Pause if unsubscribe rate exceeds 0.5%.
+Pause if budget utilisation exceeds 90% with more than 20% time remaining.
+Pause if reach efficiency is below 50% after 25% of campaign duration.
+
+MULTI-CHANNEL CAMPAIGNS
+When running email + SMS together:
+  Send email first — higher engagement, lower cost.
+  Send SMS 2-3 days later to non-openers only.
+  This maximises reach while controlling cost.
+
+AI CONTENT GENERATION
+Platform generates email subject lines and body copy using Groq AI.
+Always specify: campaign type, target segment, and tone.
+Available tones: professional, energetic, empathetic, urgent.
+AI content uses placeholder for customer name — system replaces at send time.
+Edit AI output before sending — treat it as a first draft, not final copy.
+
+================================================================================
+END OF KNOWLEDGE BASE
+================================================================================
